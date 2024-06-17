@@ -1,15 +1,13 @@
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, CallbackQueryHandler, CommandHandler
 
-from dotenv import dotenv_values
 import asyncio
 
+from config import env as config_env
 from gpt import *
 from util import *
 
 
 # тут будем писать наш код :)
-config_env = dotenv_values(".env")
-# print(f"{config_env['TELEGRAM_TOKEN']}")
 
 
 async def hello(update, context):
@@ -40,7 +38,7 @@ async def start(update, context):
     print(f"Incoming message: {update.message.text}")
 
 
-app = ApplicationBuilder().token(config_env['TELEGRAM_TOKEN']).build()
+app = ApplicationBuilder().token(config_env['TELEGRAM_BOT_TOKEN']).build()
 app.add_handler(CommandHandler("start", start))
 app.add_handler(MessageHandler(filters.TEXT, hello))
 app.add_handler(CallbackQueryHandler(hello_button))
