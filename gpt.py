@@ -2,6 +2,7 @@ import openai
 from openai import OpenAI
 import httpx as httpx
 
+
 class ChatGptService:
     client: OpenAI = None
     message_list: list = None
