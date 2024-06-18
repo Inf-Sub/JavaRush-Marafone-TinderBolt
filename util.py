@@ -56,9 +56,8 @@ async def send_photo(update: Update, context: ContextTypes.DEFAULT_TYPE, name: s
 async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, commands: dict):
     command_list = [BotCommand(key, value) for key, value in commands.items()]
     await context.bot.set_my_commands(
-        command_list, language_code="en", scope=BotCommandScopeChat(chat_id=update.effective_chat.id))
-    await context.bot.set_chat_menu_button(
-        menu_button=MenuButtonCommands(), chat_id=update.effective_chat.id)
+        commands=command_list, language_code="en", scope=BotCommandScopeChat(chat_id=update.effective_chat.id))
+    await context.bot.set_chat_menu_button(menu_button=MenuButtonCommands(), chat_id=update.effective_chat.id)
 
 
 # загружает сообщение из папки  /resources/messages/
