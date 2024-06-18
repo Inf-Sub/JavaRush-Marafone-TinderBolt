@@ -2,18 +2,23 @@ import openai
 from openai import OpenAI
 import httpx as httpx
 
+from config import env as config_env
+
+
 class ChatGptService:
     client: OpenAI = None
     message_list: list = None
 
     def __init__(self, token):
         token = "sk-proj-"+token[:3:-1] if token.startswith('gpt:') else token
-        self.client = openai.OpenAI(http_client=httpx.Client(proxies="http://18.199.183.77:49232"), api_key=token)
+        # print(f"GPT Token:\t{token}")
+        self.client = openai.OpenAI(http_client=httpx.Client(proxies=config_env['HTTP_PROXY']), api_key=token)
         self.message_list = []
 
     async def send_message_list(self) -> str:
         completion = self.client.chat.completions.create(
-            model="gpt-3.5-turbo",  # gpt-4o,  gpt-4-turbo,    gpt-3.5-turbo
+            # Models: "gpt-3.5-turbo", "gpt-4o", "gpt-4-turbo"
+            model="gpt-4-turbo",
             messages=self.message_list,
             max_tokens=3000,
             temperature=0.9
