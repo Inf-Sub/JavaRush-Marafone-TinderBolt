@@ -20,7 +20,7 @@ for exception `openai.AuthenticationError`
 ### Video:
 https://www.youtube.com/watch?v=TWoW8P3ePdo
 
-### Conspect:
+### Lesson notes:
 https://javarush.com/groups/posts/68452-dopolnenie-i-konspekt-k-zanjatiju-3
 
 
@@ -34,7 +34,7 @@ https://javarush.com/groups/posts/68452-dopolnenie-i-konspekt-k-zanjatiju-3
 ### Video:
 https://www.youtube.com/watch?v=DqN4Wsr2YmU
 
-### Conspect:
+### Lesson notes:
 https://javarush.com/groups/posts/68451-dopolnenie-i-konspekt-k-zanjatiju-2
 
 
@@ -46,5 +46,5 @@ https://javarush.com/groups/posts/68451-dopolnenie-i-konspekt-k-zanjatiju-2
 ### Video:
 https://www.youtube.com/watch?v=XamYvQy1rUg
 
-### Conspect:
+### Lesson notes:
 https://javarush.com/groups/posts/68450-predvariteljhnaja-podgotovka-i-konspekt-k-zanjatiju-1
