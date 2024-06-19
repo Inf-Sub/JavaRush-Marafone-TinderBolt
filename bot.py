@@ -13,6 +13,7 @@ async def sleep(*, sec: float = 0.5) -> None:
 
 async def paragraph() -> None:
     print(f"Dialog Mode: {dialog.mode}")
+    print(f"{'=' * 20}")
     print(f"\n\n")
 
 
