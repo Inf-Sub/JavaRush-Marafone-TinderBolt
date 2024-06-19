@@ -16,16 +16,20 @@ class ChatGptService:
         self.message_list = []
 
     async def send_message_list(self) -> str:
-        completion = self.client.chat.completions.create(
-            # Models: "gpt-3.5-turbo", "gpt-4o", "gpt-4-turbo"
-            model="gpt-4-turbo",
-            messages=self.message_list,
-            max_tokens=3000,
-            temperature=0.9
-        )
-        message = completion.choices[0].message
-        self.message_list.append(message)
-        return message.content
+        try:
+            completion = self.client.chat.completions.create(
+                # Models: "gpt-3.5-turbo", "gpt-4o", "gpt-4-turbo"
+                model="gpt-4-turbo",
+                messages=self.message_list,
+                max_tokens=3000,
+                temperature=0.9
+            )
+            message = completion.choices[0].message
+            self.message_list.append(message)
+            return message.content
+        except openai.AuthenticationError:
+            print("OpenAI Authentication Error")
+            return "Sorry, try again later."
 
     def set_prompt(self, prompt_text: str) -> None:
         self.message_list.clear()
