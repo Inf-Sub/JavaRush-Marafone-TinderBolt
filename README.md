@@ -1,11 +1,29 @@
 # JavaRush-Marafone-TinderBolt
-**JavaRush Marafone TinderBolt**
+### JavaRush Marafone TinderBolt
+https://javarush.com/groups/python-marathon
 
 
-=============
+---
+
+## Version: 3
+* added functions `date`, `date_button`, `date_dialog`
+* added command: `/date`
+* updated `send_text` function in `utils.py`, added optional `parse_mode` parameter
+* updated `send_message_list` function in class `ChatGptService` in `gpt.py`, added `try .. except ..`
+for exception `openai.AuthenticationError`
+* added ...
+
+### Video:
+https://www.youtube.com/watch?v=TWoW8P3ePdo
+
+### Conspect:
+https://javarush.com/groups/posts/68452-dopolnenie-i-konspekt-k-zanjatiju-3
+
+
+---
 
 ## Version: 2
-added ChatGPT
+* added **ChatGPT** command: `/gpt`
 
 ### Video:
 https://www.youtube.com/watch?v=DqN4Wsr2YmU
@@ -14,7 +32,7 @@ https://www.youtube.com/watch?v=DqN4Wsr2YmU
 https://javarush.com/groups/posts/68451-dopolnenie-i-konspekt-k-zanjatiju-2
 
 
-=============
+---
 
 
 ## Version: 1
