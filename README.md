@@ -5,6 +5,20 @@ https://javarush.com/groups/python-marathon
 
 ---
 
+## Version: 4
+* added **ChatGPT** command: `/profile`
+* added functions `profile` and `profile_dialog`
+* added minor fixes
+
+### Video:
+https://www.youtube.com/watch?v=Pr93UYLxY6c
+
+### Lesson notes:
+https://javarush.com/groups/posts/68453-dopolnenie-i-konspekt-k-zanjatiju-4
+
+
+---
+
 ## Version: 3
 * added **ChatGPT** commands: `/date` and `/message` 
 * added functions `date`, `date_button`, `date_dialog`
