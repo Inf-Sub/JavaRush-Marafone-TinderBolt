@@ -12,21 +12,21 @@ async def sleep(*, sec: float = 0.5) -> None:
 
 
 async def paragraph() -> None:
-    print(f"Dialog Mode: {dialog.mode}")
+    # print(f"{say_func_name()}\tDialog Mode: {dialog.mode}")
     print(f"{'=' * 20}")
     print(f"\n\n")
 
 
 def say_func_name() -> str:
     stack = traceback.extract_stack()
-    return stack[-2][2]
+    return f"Function Name: {stack[-2][2]}"
 
 
 async def start(update, context) -> None:
     mode = "main"
     dialog.mode = mode
     question = update.message.text
-    answer = load_message(mode)
+    answer = load_message(name=mode)
     await send_photo(update=update, context=context, name=mode)
     await send_text(update=update, context=context, text=answer)
 
@@ -41,10 +41,9 @@ async def start(update, context) -> None:
         }
     )
 
-    print(f"Function Name: {say_func_name()}")
-    print(f"Incoming message: {question}")
-    print(f"Sending message: {answer}")
-    print(f"Update BOT menu")
+    print(f"{say_func_name()}\tIncoming message:\t{question}")
+    print(f"{say_func_name()}\tSending message:\t{answer}")
+    print(f"{say_func_name()}\tUpdate BOT menu")
     await paragraph()
 
 
@@ -52,27 +51,25 @@ async def gpt(update, context) -> None:
     mode = "gpt"
     dialog.mode = mode
     question = update.message.text
-    answer = load_message(mode)
+    answer = load_message(name=mode)
     await send_photo(update=update, context=context, name=mode)
     await send_text(update=update, context=context, text=answer)
 
-    print(f"Function Name: {say_func_name()}")
-    print(f"Incoming message: {question}")
-    print(f"Changed Dialog Mode: {dialog.mode}")
-    print(f"Sending message: {answer}")
+    print(f"{say_func_name()}\tIncoming message:\t{question}")
+    print(f"{say_func_name()}\tChanged Dialog Mode:\t{dialog.mode}")
+    print(f"{say_func_name()}\tSending message:\t{answer}")
     await paragraph()
 
 
 async def gpt_dialog(update, context) -> None:
     question = update.message.text
-    prompt = load_prompt(dialog.mode)
+    prompt = load_prompt(name=dialog.mode)
     answer = await chatgpt.send_question(prompt_text=prompt, message_text=question)
     await send_text(update=update, context=context, text=f"*{answer}*")
 
-    print(f"Function Name: {say_func_name()}")
-    print(f"Incoming message (question to ChatGPT): {question}")
-    print(f"Load Prompt (for ChatGPT): `{prompt}`")
-    print(f"Sending message (answer at ChatGPT): {answer}")
+    print(f"{say_func_name()}\tIncoming message (question to ChatGPT):\t{question}")
+    print(f"{say_func_name()}\tLoad Prompt (for ChatGPT):\n`{prompt}`")
+    print(f"{say_func_name()}\tSending message (answer at ChatGPT):\t{answer}")
     await paragraph()
 
 
@@ -80,7 +77,7 @@ async def date(update, context) -> None:
     mode = "date"
     dialog.mode = mode
     question = update.message.text
-    answer = load_message(mode)
+    answer = load_message(name=mode)
     await send_photo(update=update, context=context, name=mode)
     # await send_text(update=update, context=context, text=answer)
     my_buttons = await send_text_buttons(
@@ -93,11 +90,10 @@ async def date(update, context) -> None:
         }
     )
 
-    print(f"Function Name: {say_func_name()}")
-    print(f"Incoming message: {question}")
-    print(f"Changed Dialog Mode: {dialog.mode}")
-    print(f"Sending message: {answer}")
-    print(f"Sending buttons: {my_buttons}")
+    print(f"{say_func_name()}\tIncoming message:\t{question}")
+    print(f"{say_func_name()}\tChanged Dialog Mode:\t{dialog.mode}")
+    print(f"{say_func_name()}\tSending message:\t{answer}")
+    print(f"{say_func_name()}\tSending buttons:\t{my_buttons}")
     await paragraph()
 
 
@@ -108,10 +104,9 @@ async def date_dialog(update, context) -> None:
     # await send_text(update=update, context=context, text=f"*{answer}*")
     await my_message.edit_text(f"{answer}")
 
-    print(f"Function Name: {say_func_name()}")
-    print(f"Incoming message (question to ChatGPT in Dialog): {question}")
-    print(f"Sending message (temp answer in Dialog): {my_message}")
-    print(f"Sending message (answer at ChatGPT in Dialog): {answer}")
+    print(f"{say_func_name()}\tIncoming message (question to ChatGPT in Dialog):\t{question}")
+    print(f"{say_func_name()}\tSending message (temp answer in Dialog):\t{my_message}")
+    print(f"{say_func_name()}\tSending message (answer at ChatGPT in Dialog):\t{answer}")
 
 
 async def date_button(update, context) -> None:
@@ -121,28 +116,31 @@ async def date_button(update, context) -> None:
     query = update.callback_query.data  # код кнопки
     await update.callback_query.answer()  # помечаем что обработали нажатие на кнопку
     await send_photo(update=update, context=context, name=query)
-    await send_text(
-        # update=update, context=context, text=f"Pressed button ID: {query}", parse_mode=ParseMode.HTML
-        # update=update, context=context, text=f"Pressed button ID: `{query}`"
-        # update=update, context=context,
-        # text=f"Отличный выбор!\n
-        # Пригласите {'парня' if (query[5:] in sex['man']) else 'девушку'} на свидание, за 5 сообщений"
 
+    # Исправление ошибки при наличии в переменной {query} нижнего подчеркивания:
+    # send_text(update, context, f"{query}" parse_mode=ParseMode.HTML) or send_text(update, context, f"`{query}`")
+    await send_text(
         update=update, context=context,
         text=f"Отличный выбор!\n"
              f"Пригласите {'девушку' if ( sex[query[5:]] == 'woman') else 'парня'} на свидание, за 5 сообщений"
     )
+    # alternate:
+    # await send_text(
+    #     update=update, context=context,
+    #     text=f"Отличный выбор!\n
+    #     Пригласите {'парня' if (query[5:] in sex['man']) else 'девушку'} на свидание, за 5 сообщений"
+    # )
+
     if dialog.mode != mode:
         print(f"ERROR: Dialog Mode: {dialog.mode}")
         dialog.mode = mode
         print(f"Changed Dialog Mode: {dialog.mode}")
 
-    prompt = load_prompt(query)
+    prompt = load_prompt(name=query)
     chatgpt.set_prompt(prompt)
 
-    print(f"Function Name: {say_func_name()}")
-    print(f"Pressed button ID: {query}")
-    print(f"Load Prompt (for ChatGPT): `{prompt}`")
+    print(f"{say_func_name()}\tPressed button ID:\t{query}")
+    print(f"{say_func_name()}\tLoad Prompt (for ChatGPT):\n`{prompt}`")
     await paragraph()
 
 
@@ -150,7 +148,7 @@ async def message(update, context) -> None:
     mode = "message"
     dialog.mode = mode
     question = update.message.text
-    answer = load_message(mode)
+    answer = load_message(name=mode)
     await send_photo(update=update, context=context, name=mode)
     # await send_text(update=update, context=context, text=answer)
     my_buttons = await send_text_buttons(
@@ -160,11 +158,10 @@ async def message(update, context) -> None:
         }
     )
 
-    print(f"Function Name: {say_func_name()}")
-    print(f"Incoming message: {question}")
-    print(f"Changed Dialog Mode: {dialog.mode}")
-    print(f"Sending message: {answer}")
-    print(f"Sending buttons: {my_buttons}")
+    print(f"{say_func_name()}\tIncoming message:\t{question}")
+    print(f"{say_func_name()}\tChanged Dialog Mode:\t{dialog.mode}")
+    print(f"{say_func_name()}\tSending message:\t{answer}")
+    print(f"{say_func_name()}\tSending buttons:\t{my_buttons}")
     await paragraph()
 
     dialog.list.clear()
@@ -174,10 +171,9 @@ async def message_dialog(update, context) -> None:
     question = update.message.text
     dialog.list.append(question)
 
-    print(f"Function Name: {say_func_name()}")
-    print(f"Incoming message (added Dialog List for ChatGPT): {question}")
-    print(f"All messages in Dialog (All questions for ChatGPT in Dialog): {dialog.list}")
-    # print(f"Sending message (answer at ChatGPT in Dialog): {answer}")
+    print(f"{say_func_name()}\tIncoming message (added Dialog List for ChatGPT):\t{question}")
+    print(f"{say_func_name()}\tAll messages in Dialog (All questions for ChatGPT in Dialog):\t{dialog.list}")
+    # print(f"{say_func_name()}\tSending message (answer at ChatGPT in Dialog):\t{answer}")
     await paragraph()
 
 
@@ -185,33 +181,82 @@ async def message_button(update, context) -> None:
     query = update.callback_query.data  # код кнопки
     await update.callback_query.answer()  # помечаем что обработали нажатие на кнопку
 
-    prompt = load_prompt(query)
+    prompt = load_prompt(name=query)
     chatgpt.set_prompt(prompt)
-    prompt = load_prompt(query)
+    # prompt = load_prompt(name=query)
     user_chat_history = "\n\n".join(dialog.list)
     my_message = await send_text(update=update, context=context, text=f"*ChatGPT думает над вариантами ответа...*")
-    answer = await chatgpt.send_question(prompt, user_chat_history)
-    await my_message.edit_text(f"{answer}")
+    answer = await chatgpt.send_question(prompt_text=prompt, message_text=user_chat_history)
+    await my_message.edit_text(text=f"{answer}")
 
-    print(f"Function Name: {say_func_name()}")
-    print(f"Pressed button ID: {query}")
-    print(f"Incoming messages in Dialog (All questions for ChatGPT in Dialog): {dialog.list}")
-    print(f"Sending message (temp answer in Dialog): {my_message}")
-    print(f"Sending message (answer at ChatGPT in Dialog): {answer}")
+    print(f"{say_func_name()}\tPressed button ID:\t{query}")
+    print(f"{say_func_name()}\tIncoming messages in Dialog (All questions for ChatGPT in Dialog):\t{dialog.list}")
+    print(f"{say_func_name()}\tSending message (temp answer in Dialog):\t{my_message}")
+    print(f"{say_func_name()}\tSending message (answer at ChatGPT in Dialog):\t{answer}")
     await paragraph()
+
+
+async def profile(update, context) -> None:
+    mode = "profile"
+    dialog.mode = mode
+    question = update.message.text
+    answer = load_message(name=mode)
+    await send_photo(update=update, context=context, name=mode)
+    await send_text(update=update, context=context, text=answer)
+
+    dialog.count = 0
+    await send_text(update=update, context=context, text="Сколько Вам лет?")
+
+    print(f"{say_func_name()}\tIncoming message:\t{question}")
+    print(f"{say_func_name()}\tChanged Dialog Mode:\t{dialog.mode}")
+    print(f"{say_func_name()}\tSending message:\t{answer}")
+    # print(f"{say_func_name()}\tSending buttons:\t{my_buttons}")
+    await paragraph()
+
+
+async def profile_dialog(update, context) -> None:
+    mode = "profile"
+    question = update.message.text
+    dialog.count += 1
+
+    print(
+        f"{say_func_name()}\tDialog Count: {dialog.count}\tIncoming message (question to ChatGPT in Dialog): {question}"
+    )
+
+    if dialog.count == 1:
+        dialog.user["age"] = question
+        await send_text(update=update, context=context, text="Кем Вы работаете?")
+    elif dialog.count == 2:
+        dialog.user["occuration"] = question
+        await send_text(update=update, context=context, text="У Вас есть хобби?")
+    elif dialog.count == 3:
+        dialog.user["hobby"] = question
+        await send_text(update=update, context=context, text="Что Вам НЕ нравится в людях?")
+    elif dialog.count == 4:
+        dialog.user["annoys"] = question
+        await send_text(update=update, context=context, text="Цель знакомства?")
+    elif dialog.count == 5:
+        dialog.user["goals"] = question
+
+        prompt = load_prompt(name=dialog.mode)
+        user_info = dialog_user_info_to_str(user=dialog.user)
+
+        my_message = await send_text(update=update, context=context, text=f"*ChatGPT обрабатывает Ваши данные...*")
+        answer = await chatgpt.send_question(prompt_text=prompt, message_text=user_info)
+        await my_message.edit_text(text=f"{answer}")
+
+        print(f"{say_func_name()}\tSending message (temp answer in Dialog):\t{my_message}")
+        print(f"{say_func_name()}\tSending message (answer at ChatGPT in Dialog):\t{answer}")
 
 
 async def hello(update, context) -> None:
     question = update.message.text
 
-    if dialog.mode is not None:
+    print(f"{say_func_name()}\tDialog Mode:\t{dialog.mode}")
+
+    if dialog.mode is not None and dialog.mode != "main":
+        print(f"{say_func_name()}\tSelect Dialog Function:\t{dialog.mode}_dialog")
         await globals()[f"{dialog.mode}_dialog"](update=update, context=context)
-    # if dialog.mode == "gpt":
-    #     await gpt_dialog(update=update, context=context)
-    # elif dialog.mode == "date":
-    #     await date_dialog(update=update, context=context)
-    # elif dialog.mode == "message":
-    #     await message_dialog(update=update, context=context)
     else:
         await send_text(update=update, context=context, text="*Привет!*")
         await sleep()
@@ -228,10 +273,7 @@ async def hello(update, context) -> None:
             }
         )
 
-    print(f"Function Name: {say_func_name()}")
-    print(f"Select Dialog Function: {dialog.mode}_dialog")
-    print(f"Dialog Mode: {dialog.mode}")
-    print(f"Incoming message: {question}")
+    print(f"{say_func_name()}\tIncoming message:\t{question}")
     await paragraph()
 
 
@@ -241,29 +283,31 @@ async def hello_button(update, context):
     await send_text(
         update=update, context=context, text=f"Процесс {'запущен' if 'start' in query != -1 else 'остановлен'}")
 
-    print(f"Function Name: {say_func_name()}")
-    print(f"Pressed button ID: {query}")
+    print(f"{say_func_name()}\tPressed button ID:\t{query}")
     await paragraph()
 
 
 dialog = Dialog()
 dialog.mode = None
 dialog.list = []
+dialog.count = 0
+dialog.user = {}
 
 
 chatgpt = ChatGptService(token=config_env['OPEN_AI_TOKEN'])
 
 
-app = ApplicationBuilder().token(config_env['TELEGRAM_BOT_TOKEN']).build()
-app.add_handler(CommandHandler("start", start))
-app.add_handler(CommandHandler("gpt", gpt))
-app.add_handler(CommandHandler("date", date))
-app.add_handler(CommandHandler("message", message))
+app = ApplicationBuilder().token(token=config_env['TELEGRAM_BOT_TOKEN']).build()
+app.add_handler(CommandHandler(command="start", callback=start))
+app.add_handler(CommandHandler(command="gpt", callback=gpt))
+app.add_handler(CommandHandler(command="date", callback=date))
+app.add_handler(CommandHandler(command="message", callback=message))
+app.add_handler(CommandHandler(command="profile", callback=profile))
 
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, hello))
-app.add_handler(CallbackQueryHandler(date_button, pattern="^date_.*"))
-app.add_handler(CallbackQueryHandler(message_button, pattern="^message_.*"))
-app.add_handler(CallbackQueryHandler(hello_button))
+app.add_handler(MessageHandler(filters=filters.TEXT & ~filters.COMMAND, callback=hello))
+app.add_handler(CallbackQueryHandler(callback=date_button, pattern="^date_.*"))
+app.add_handler(CallbackQueryHandler(callback=message_button, pattern="^message_.*"))
+app.add_handler(CallbackQueryHandler(callback=hello_button))
 
 app.run_polling()
 
