@@ -64,12 +64,39 @@ async def gpt(update, context) -> None:
 async def gpt_dialog(update, context) -> None:
     question = update.message.text
     prompt = load_prompt(name=dialog.mode)
+    temp_answer = await send_text(update=update, context=context, text=f"*ChatGPT думает над вариантами ответа...*")
     answer = await chatgpt.send_question(prompt_text=prompt, message_text=question)
-    await send_text(update=update, context=context, text=f"*{answer}*")
+    await send_text(update=update, context=context, text=f"{answer}")
+    # await my_message.edit_text(text=f"{answer}")
 
     print(f"{say_func_name()}\tIncoming message (question to ChatGPT):\t{question}")
     print(f"{say_func_name()}\tLoad Prompt (for ChatGPT):\n`{prompt}`")
+    print(f"{say_func_name()}\tSending message (temp answer at ChatGPT):\t{temp_answer}")
     print(f"{say_func_name()}\tSending message (answer at ChatGPT):\t{answer}")
+    await paragraph()
+
+
+async def gpt_models(update, context) -> None:
+    mode = "gpt_models"
+    rn = "\n"
+    dialog.mode = mode
+    question = update.message.text
+    answer = load_message(name=mode)
+    await send_photo(update=update, context=context, name=mode)
+    await send_text(update=update, context=context, text=answer)
+
+    answer = await chatgpt.get_models_list()
+    await send_text(
+        update=update, context=context,
+        text=f"```\n{rn.join(map(str, sorted([model.id for model in answer.data])))}```"
+    )
+
+    print(f"{say_func_name()}\tIncoming message:\t{question}")
+    print(f"{say_func_name()}\tChanged Dialog Mode:\t{dialog.mode}")
+    # Итерация по каждой модели в списке (в SyncPage)
+    print(f"Sending message:\t\n{rn.join(map(str, sorted([model.id for model in answer.data])))}")
+    print(f"List models:\t\n{sorted([model.id for model in answer.data])}")
+
     await paragraph()
 
 
@@ -300,6 +327,7 @@ chatgpt = ChatGptService(token=config_env['OPEN_AI_TOKEN'])
 app = ApplicationBuilder().token(token=config_env['TELEGRAM_BOT_TOKEN']).build()
 app.add_handler(CommandHandler(command="start", callback=start))
 app.add_handler(CommandHandler(command="gpt", callback=gpt))
+app.add_handler(CommandHandler(command="gpt_models", callback=gpt_models))
 app.add_handler(CommandHandler(command="date", callback=date))
 app.add_handler(CommandHandler(command="message", callback=message))
 app.add_handler(CommandHandler(command="profile", callback=profile))
