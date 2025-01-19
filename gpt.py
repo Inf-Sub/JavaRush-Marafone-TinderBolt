@@ -1,97 +1,86 @@
+import httpcore
 import openai
 from openai import OpenAI
 import httpx as httpx
-
-from config import env as config_env
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 
 class ChatGptService:
     client: OpenAI = None
-    message_list: list = None
+    # message_list: list = None
 
-    def __init__(self, token):
-        token = "sk-proj-"+token[:3:-1] if token.startswith('gpt:') else token
-        # print(f"GPT Token:\t{token}")
-        self.client = openai.OpenAI(http_client=httpx.Client(proxies=config_env['HTTP_PROXY']), api_key=token)
+    def __init__(
+            self, token: str, proxy: str, timeout: int = 60, model: str = 'gpt-4o', max_tokens: int = 4096,
+            temperature: float = 0.9
+    ):
+        self.token_src = token
+        self.token = self._process_token()
+        self.proxy = proxy
+        self.timeout = timeout
+        self.model = model
+        self.max_tokens = max_tokens
+        self.temperature = temperature
         self.message_list = []
+        self._initialize_client()
+        print(
+            f'GPT Token:\t\t{self.token}\t{self.token[:7:-1]}\n'
+            f'GPT Model:\t\t{self.model}\n'
+            f'Max tokens:\t\t{self.max_tokens}\n'
+            f'Temperature:\t{self.temperature}'
+        )
+
+    def _process_token(self):
+        return f'sk-proj-{self.token_src[:3:-1]}' if self.token_src.startswith('gpt:') else self.token_src
+    
+    @retry(stop=stop_after_attempt(5), wait=wait_fixed(3))
+    def _initialize_client(self):
+        try:
+            # Initialize the OpenAI client
+            self.client = openai.OpenAI(
+                http_client=httpx.Client(proxies=self.proxy, timeout=httpx.Timeout(self.timeout)), api_key=self.token
+            )
+            print('HTTP Client for OpenAI initialized successfully.')
+        except (httpx.ConnectError, httpcore.ConnectError) as e:
+            print(f'ERROR: Failed to initialize HTTP Client for OpenAI: "{e}". Retrying...')
+            raise  # Reraise exception to trigger retry
+        except Exception as e:
+            print(f'ERROR: An unexpected error occurred: "{e}".')
+            # Handle other exceptions if necessary
+
+    def update_token(self, new_token):
+        self.token = self._process_token(new_token)
+        self._initialize_client()
 
     async def send_message_list(self) -> str:
         try:
-            """
-            Models:
-            'babbage-002': Babbage-002
-            - Это одна из моделей GPT-3, нацеленная на умеренные размеры задач. Хорошо сбалансирована для экономически 
-            эффективных приложений, требующих среднего уровня понимания естественного языка.
-
-            'dall-e-2', 'dall-e-3': DALL-E 2 и DALL-E 3
-            - Это модели, предназначенные для генерации изображений на основе текстовых описаний. DALL-E 2 был 
-            представлен раньше и работает с векторным представлением изображения, в то время как DALL-E 3 является
-            улучшенной версией с более высоким разрешением и реалистичностью генерируемых изображений.
-
-            'davinci-002': Davinci-002
-            - Модель из серии GPT-3, предназначенная для обработки более сложных запросов и больших объемов данных. 
-            Davinci-002 обеспечивает более глубокое понимание и генерацию текста.
-
-            'gpt-3.5-turbo': GPT-3.5 Turbo
-            - Эта модель представляет собой улучшенную и более быструю версию GPT-3.5, оптимизированную для скорости и 
-            эффективности без значительной потери качества.
-
-            'gpt-3.5-turbo-0125', 'gpt-3.5-turbo-1106', 'gpt-3.5-turbo-16k', 'gpt-3.5-turbo-instruct',
-            'gpt-3.5-turbo-instruct-0914': GPT-3.5 Turbo (различные индексы)
-            - Эти модификации GPT-3.5 Turbo (например, 0125, 1106, 16k) представляют собой различные конфигурации или 
-            версии, которые могут варьироваться по мощности, скорости или специфическому назначению.
-
-            'gpt-4', 'gpt-4-0125-preview', 'gpt-4-0613', 'gpt-4-1106-preview': GPT-4 и его разновидности
-            - GPT-4 — это болшой шаг вперед по сравнению с GPT-3 с улучшенными алгоритмами и большей мощностью обработки 
-            данных. Различные версии, такие как 0125-preview, 0613 и 1106-preview, отражают процесс разработки и 
-            тестирования с учетом различных параметров производительности.
-
-            'gpt-4-turbo', 'gpt-4-turbo-2024-04-09', 'gpt-4-turbo-preview': GPT-4 Turbo
-            - Это еще более усовершенствованная и оптимизированная версия GPT-4, направленная на максимизацию скорости 
-            и эффективности.
-
-            'gpt-4o', 'gpt-4o-2024-05-13': GPT-4o
-            - Эта серия обозначает возможно специализированную версию GPT-4, ориентированную на конкретные задачи 
-            оптимизации или применения.
-
-            'text-embedding-3-large', 'text-embedding-3-small', 'text-embedding-ada-002': Text-Embedding Models
-            - Модели такие как text-embedding-3-large и text-embedding-3-small предназначены для создания эмбеддингов 
-            текста, которые можно использовать для различных приложений, включая поиск по семантической близости и 
-            кластеризацию.
-
-            'tts-1', 'tts-1-1106', 'tts-1-hd', 'tts-1-hd-1106': TTS (Text-to-Speech) Models
-            - Модели tts-1, tts-1-1106 и tts-1-hd предназначены для преобразования текста в речь. Они варьируются от 
-            стандартного качества до высокого (HD), предоставляя более чистое и естественное звучание голоса.
-
-            'whisper-1': Whisper-1
-            - Это модель для распознавания речи, способная преобразовывать аудио в текст. Эффективна для различных 
-            языков и акцентов.
-            """
             completion = self.client.chat.completions.create(
-                model="gpt-4-turbo",
+                model=self.model,
                 messages=self.message_list,
-                max_tokens=4000,
-                temperature=0.9
+                max_tokens=self.max_tokens,
+                temperature=self.temperature
             )
             message = completion.choices[0].message
             self.message_list.append(message)
             return message.content
         except openai.AuthenticationError:
-            print("OpenAI Authentication Error")
-            return "Sorry, try again later."
+            print('ERROR: OpenAI Authentication Error.')
+            return 'Sorry, try again later.\tAuthentication Error!'
+        except openai.RateLimitError:
+            print('ERROR: OpenAI Rate Limit Error')
+            return 'Sorry, try again later.\tRate Limit Error!'
 
     def set_prompt(self, prompt_text: str) -> None:
         self.message_list.clear()
-        self.message_list.append({"role": "system", "content": prompt_text})
+        self.message_list.append({'role': 'system', 'content': prompt_text})
 
     async def add_message(self, message_text: str) -> str:
-        self.message_list.append({"role": "user", "content": message_text})
+        self.message_list.append({'role': 'user', 'content': message_text})
         return await self.send_message_list()
 
     async def send_question(self, prompt_text: str, message_text: str) -> str:
         self.message_list.clear()
-        self.message_list.append({"role": "system", "content": prompt_text})
-        self.message_list.append({"role": "user", "content": message_text})
+        self.message_list.append({'role': 'system', 'content': prompt_text})
+        self.message_list.append({'role': 'user', 'content': message_text})
         return await self.send_message_list()
 
     async def get_models_list(self):
