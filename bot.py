@@ -536,7 +536,7 @@ async def hello(update, context) -> None:
         answer = '*Привет!*\nТут могла бы быть твоя реклама! =)\nНо, возможно, Вам нужен ChatGPT /gpt?!'
         delete_delay = 3
         
-        print(f'{'=' * 40}\n{say_func_name()}\tDialog Mode:\t{dialog.mode}')
+        print(f'{"=" * 40}\n{say_func_name()}\tDialog Mode:\t{dialog.mode}')
 
         if dialog.mode is not None and dialog.mode != 'main':
             print(f'{say_func_name()}\tSelect Dialog Function:\t{dialog.mode}_dialog')
