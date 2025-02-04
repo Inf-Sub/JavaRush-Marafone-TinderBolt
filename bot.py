@@ -194,7 +194,7 @@ async def gpt_dialog(update, context) -> None:
             await util.send_text(update=update, context=context, text=f'{answer}')
             await util.send_text(
                 update=update, context=context,
-                text=f'*ERROR: Exception:*\n\n{e}\n\n{'=' * 20}\nLength ({len(answer)})\n'
+                text=f"*ERROR: Exception:*\n\n{e}\n\n{'=' * 20}\nLength ({len(answer)})\n"
             )
     else:
         find_result = False
