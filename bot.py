@@ -180,7 +180,7 @@ async def gpt_dialog(update, context) -> None:
     await paragraph()
 
     if len(answer) <= 4000:
-        print(f"\n{'=' * 20}\nLength ({len(answer)})\n")
+        print(f'\n{"=" * 20}\nLength ({len(answer)})\n')
         # await temp_answer.edit_text(text=f"{answer}", parse_mode=util.ParseMode.MARKDOWN_V2)  # Глючит
         try:
             # await util.send_text(update=update, context=context, text=f'{answer}')
@@ -189,12 +189,12 @@ async def gpt_dialog(update, context) -> None:
             # if my_message.text == message_text_wait:
             #     await util.delete_message(update=update, context=context, message=my_message)
         except Exception as e:
-            print(f"\n{'=' * 20}\nLength ({len(answer)})\n\nAnswer:\n{answer}\n\n")
+            print(f'\n{"=" * 20}\nLength ({len(answer)})\n\nAnswer:\n{answer}\n\n')
             await util.delete_message(update=update, context=context, message=my_message)
             await util.send_text(update=update, context=context, text=f'{answer}')
             await util.send_text(
                 update=update, context=context,
-                text=f"*ERROR: Exception:*\n\n{e}\n\n{'=' * 20}\nLength ({len(answer)})\n"
+                text=f'*ERROR: Exception:*\n\n{e}\n\n{"=" * 20}\nLength ({len(answer)})\n'
             )
     else:
         find_result = False
@@ -234,12 +234,12 @@ async def gpt_dialog(update, context) -> None:
                 print(f'Error: {e}')
                 await util.send_text(
                     update=update, context=context,
-                    text=f'*ERROR: Exception: Page: {page}*\n\n```\n{e}\n```\n{'=' * 20}\n'
+                    text=f'*ERROR: Exception: Page: {page}*\n\n```\n{e}\n```\n{"=" * 20}\n'
                          f'Length chunk ({len(chunk)}) (Length answer: {len(answer)})\n'
                 )
                 await util.send_text(
                     update=update, context=context,
-                    text=f'*ERROR: Exception: Page: {page}*\n\n{e}\n\n{'=' * 20}\n'
+                    text=f'*ERROR: Exception: Page: {page}*\n\n{e}\n\n{"=" * 20}\n'
                          f'Length chunk ({len(chunk)}) (Length answer: {len(answer)})\n'
                 )  # for test
 
