@@ -159,7 +159,8 @@ async def gpt(update, context) -> None:
 async def gpt_dialog(update, context) -> None:
     question = update.message.text
     prompt = util.load_prompt(name=dialog.mode)
-    my_message = await util.send_text(update=update, context=context, text='*ChatGPT думает над вариантами ответа...*')
+    message_text_wait = '*ChatGPT думает над вариантами ответа...*'
+    my_message = await util.send_text(update=update, context=context, text=message_text_wait)
     answer = await chatgpt.send_question(prompt_text=prompt, message_text=question)
     # try:
     #     await my_message.edit_text(text=f'{answer}', parse_mode=util.ParseMode.MARKDOWN)
@@ -179,15 +180,22 @@ async def gpt_dialog(update, context) -> None:
     await paragraph()
 
     if len(answer) <= 4000:
-        print(f"\n{'=' * 20}\nChunk ({len(answer)}) (length {len(answer)})\n")
+        print(f"\n{'=' * 20}\nLength ({len(answer)})\n")
         # await temp_answer.edit_text(text=f"{answer}", parse_mode=util.ParseMode.MARKDOWN_V2)  # Глючит
         try:
             # await util.send_text(update=update, context=context, text=f'{answer}')
             await my_message.edit_text(text=f'{answer}', parse_mode=util.ParseMode.MARKDOWN)
+            # await util.send_text(update=update, context=context, text=f'{answer}', parse_mode=util.ParseMode.MARKDOWN)
+            # if my_message.text == message_text_wait:
+            #     await util.delete_message(update=update, context=context, message=my_message)
         except Exception as e:
+            print(f"\n{'=' * 20}\nLength ({len(answer)})\n\nAnswer:\n{answer}\n\n")
+            await util.delete_message(update=update, context=context, message=my_message)
             await util.send_text(update=update, context=context, text=f'{answer}')
             await util.send_text(
-                update=update, context=context, text=f'*ERROR:*\n\n{e}')
+                update=update, context=context,
+                text=f'*ERROR: Exception:*\n\n{e}\n\n{'=' * 20}\nLength ({len(answer)})\n'
+            )
     else:
         find_result = False
         find = '```'
@@ -225,9 +233,15 @@ async def gpt_dialog(update, context) -> None:
                 )
                 print(f'Error: {e}')
                 await util.send_text(
-                    update=update, context=context, text=f'*Error:*\n\n```\n{e}\n```\n')
+                    update=update, context=context,
+                    text=f'*ERROR: Exception: Page: {page}*\n\n```\n{e}\n```\n{'=' * 20}\n'
+                         f'Length chunk ({len(chunk)}) (Length answer: {len(answer)})\n'
+                )
                 await util.send_text(
-                    update=update, context=context, text=f'*Error:*\n\n{e}\n')  # for test
+                    update=update, context=context,
+                    text=f'*ERROR: Exception: Page: {page}*\n\n{e}\n\n{'=' * 20}\n'
+                         f'Length chunk ({len(chunk)}) (Length answer: {len(answer)})\n'
+                )  # for test
 
             # await util.send_text(update=update, context=context, text=f"{chunk}", parse_mode=ParseMode.HTML)
             await aio_sleep(1)
@@ -378,9 +392,24 @@ async def message_button(update, context) -> None:
     prompt = util.load_prompt(name=query)
     chatgpt.set_prompt(prompt)
     user_chat_history = '\n\n'.join(dialog.list)
-    my_message = await util.send_text(update=update, context=context, text='*ChatGPT думает над вариантами ответа...*')
+    message_text_wait = '*ChatGPT думает над вариантами ответа...*'
+    my_message = await util.send_text(update=update, context=context, text=message_text_wait)
     answer = await chatgpt.send_question(prompt_text=prompt, message_text=user_chat_history)
-    await my_message.edit_text(text=f'{answer}', parse_mode=util.ParseMode.MARKDOWN)
+    
+    try:
+        await my_message.edit_text(text=f'{answer}', parse_mode=util.ParseMode.MARKDOWN)
+        
+        # if my_message.text == message_text_wait:
+        #     await util.delete_message(update=update, context=context, message=my_message)
+        # await util.send_text(update=update, context=context, text=f'{answer}', parse_mode=util.ParseMode.MARKDOWN)
+    except Exception as e:
+        print(f'\n{'=' * 20}\nLength ({len(answer)})\n\nAnswer:\n{answer}\n\n')
+        await util.delete_message(update=update, context=context, message=my_message)
+        await util.send_text(update=update, context=context, text=f'{answer}')
+        await util.send_text(
+            update=update, context=context,
+            text=f'*ERROR: Exception:*\n\n{e}\n\n{'=' * 20}\nLength ({len(answer)})\n'
+        )
 
     print(f'{say_func_name()}\tPressed button ID:\t{query}')
     print(f'{say_func_name()}\tIncoming messages in Dialog (All questions for ChatGPT in Dialog):\t{dialog.list}')

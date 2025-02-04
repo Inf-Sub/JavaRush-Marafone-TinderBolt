@@ -30,8 +30,8 @@ def dialog_user_info_to_str(user) -> str:
 
 # Декоратор tenacity для повторных попыток
 @retry(
-    stop=stop_after_attempt(3), wait=wait_fixed(5),
-    retry_error_callback=lambda retry_state: print("Error: Превышено максимальное количество попыток")
+    stop=stop_after_attempt(5), wait=wait_fixed(10),
+    retry_error_callback=lambda retry_state: print("Error: send_text: Превышено максимальное количество попыток")
 )
 async def send_text(
         update: Update, context: ContextTypes.DEFAULT_TYPE, text: str, parse_mode=ParseMode.MARKDOWN) -> Message:
