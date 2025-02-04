@@ -403,12 +403,12 @@ async def message_button(update, context) -> None:
         #     await util.delete_message(update=update, context=context, message=my_message)
         # await util.send_text(update=update, context=context, text=f'{answer}', parse_mode=util.ParseMode.MARKDOWN)
     except Exception as e:
-        print(f'\n{'=' * 20}\nLength ({len(answer)})\n\nAnswer:\n{answer}\n\n')
+        print(f'\n{"=" * 20}\nLength ({len(answer)})\n\nAnswer:\n{answer}\n\n')
         await util.delete_message(update=update, context=context, message=my_message)
         await util.send_text(update=update, context=context, text=f'{answer}')
         await util.send_text(
             update=update, context=context,
-            text=f'*ERROR: Exception:*\n\n{e}\n\n{'=' * 20}\nLength ({len(answer)})\n'
+            text=f'*ERROR: Exception:*\n\n{e}\n\n{"=" * 20}\nLength ({len(answer)})\n'
         )
 
     print(f'{say_func_name()}\tPressed button ID:\t{query}')
